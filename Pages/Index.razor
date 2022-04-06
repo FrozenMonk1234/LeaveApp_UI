@@ -1,0 +1,82 @@
+﻿@page "/"
+
+@inject IUserService _userService
+@inject ILeaveService _leaveService
+<h1>Take Leave</h1>
+<div class="form-group row">
+    <div cclass="col-sm-3">
+        <label>First Name</label>
+    </div>
+    <div class="col-sm-3">
+        <input type="text" @bind="userDetail.FirstName" />
+    </div>
+</div>
+
+<div class="form-group row">
+    <div cclass="col-sm-3">
+        <label>Last Name</label>
+    </div>
+    <div class="col-sm-3">
+        <input type="text" @bind="userDetail.LastName" />
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-sm-3">
+        <label>Leave type</label>
+    </div>
+    <div class="col-sm-3">
+        <input @bind="leaveDetail.TypeOfLeave" list="leaveType" type="text" autocomplete="on"/>
+        <datalist id="leaveType">
+            @foreach (var item in typeOfLeaveList)
+            {
+                <option value="@item.Description" >@item.Description</option>
+            }
+        </datalist>
+    </div>
+</div>
+
+
+
+<div class="form-group row">
+    <div class="col-sm-1">
+        <label>Date:</label>
+    </div>
+
+    <div class="row">
+        from: &nbsp; <input type="date" @bind="leaveDetail.FromDate" /> &nbsp; to: &nbsp; <input type="date" @bind="leaveDetail.ToDate" />
+    </div>
+</div>
+
+
+<div class="col-sm-3">
+    <div class="form-group row">
+        <label>Reason</label> &nbsp;
+        <input type="text" @bind="leaveDetail.Reason" style="width:300px; height: 100px; align-content:flex-start" />
+    </div>
+</div>
+
+@code{
+
+    List<Leave> leaveDetailList = new List<Leave>();
+    Leave leaveDetail = new Leave();
+    User userDetail = new User();
+    List<User> userDetailList = new List<User>();
+    List<TypeOfLeave> typeOfLeaveList = new List<TypeOfLeave>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Annual", value = 1});
+        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Business", value = 1});
+        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Sick", value = 1});
+
+        //typeOfLeaveList = _leaveService.
+        this.StateHasChanged();
+    }
+
+    public async Task SubmitLeave()
+    {
+        var resultSaveUser = await _userService.CreateUser(userDetail);
+        var resultSaveLeave = await _leaveService.CreateLeave(leaveDetail);
+    }
+}
