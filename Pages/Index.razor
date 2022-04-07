@@ -3,6 +3,7 @@
 @inject IUserService _userService
 @inject ILeaveService _leaveService
 @inject NavigationManager NavManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionManager
 <h1>Take Leave</h1>
 
 @if (error)
@@ -106,7 +107,7 @@
             <label>Reason</label>
         </div>
         <div class="col-sm-3">
-            <input class="form-control" type="text" @bind="leaveDetail.Reason" style="width:300px; height: 100px; align-content:flex-start"  />
+            <input class="form-control" type="text" @bind="leaveDetail.Reason" style="width:300px; height: 100px; align-content:flex-start" />
         </div>
     </div>
     <div class="form-group row">
@@ -159,8 +160,8 @@
                 var resultSaveUser = await _userService.CreateUser(userDetail);
                 leaveDetail.UserId = resultSaveUser.Id;
                 var resultSaveLeave = await _leaveService.CreateLeave(leaveDetail);
-
-                NavManager.NavigateTo("Dashboard/" + resultSaveUser.Id);
+              await sessionManager.SetItemAsync("userDetail", resultSaveUser);
+                NavManager.NavigateTo("Dashboard/" + resultSaveUser);
             }
 
 

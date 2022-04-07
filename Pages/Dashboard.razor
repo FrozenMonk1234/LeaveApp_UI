@@ -3,30 +3,36 @@
 @inject IUserService _userService
 @inject ILeaveService _leaveService
 @inject NavigationManager NavManager
-
-<h3>dashboard</h3>
+@inject Blazored.SessionStorage.ISessionStorageService sessionManager
+<h3>@userDetail.FirstName @userDetail.LastName Dashboard</h3>
 
 <div style="height: 10rem"></div>
 
-<div class="col-sm-12">
-    <table class="tabe table-light">
+<div class="col-sm-12 row">
+    <table class="tabe table-hover table-bordered table-striped" style="width: 100%">
         <thead>
-            <tr>Date Created</tr>
-            <tr>From Date</tr>
-            <tr>To Date</tr>
-            <tr>Leave Left</tr>
-            <tr>Type of leave</tr>
-            <tr>Reason</tr>
+            <tr>
+                <th>Date Created</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Leave Left</th>
+                <th>Type of leave</th>
+                <th>Reason</th>
+            </tr>
+
         </thead>
         <tbody>
-            @foreach(var item in LeaveList)
+            @foreach (var item in LeaveList)
             {
-                <tr>@item.DateCreated</tr>
-                <tr>@item.FromDate</tr>
-                <tr>@item.ToDate</tr>
-                <tr>@item.LeaveLeft</tr>
-                <tr>@item.TypeOfLeave</tr>
-                <tr>@item.Reason</tr>
+                <tr>
+                    <td>@item.DateCreated</td>
+                    <td>@item.FromDate</td>
+                    <td>@item.ToDate</td>
+                    <td>@item.LeaveLeft</td>
+                    <td>@item.TypeOfLeave</td>
+                    <td>@item.Reason</td>
+                </tr>
+
             }
         </tbody>
     </table>
@@ -36,13 +42,15 @@
     [Parameter]
     public string navUserId { get; set; }
 
-    int userID;
+    User userDetail = new User();
     List<Leave> LeaveList = new List<Leave>();
     protected override async Task OnInitializedAsync()
     {
-        Int32.TryParse(navUserId, out userID);
+        //Int32.TryParse(navUserId, out userID);
 
-        LeaveList = await _leaveService.GetAllLeaveByUserId(userID);
+        //LeaveList = await _leaveService.GetAllLeaveByUserId(userID);
+
+        userDetail = await sessionManager.GetItemAsync<User>("userDetail");
 
         this.StateHasChanged();
     }

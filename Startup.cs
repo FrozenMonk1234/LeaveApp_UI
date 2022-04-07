@@ -1,3 +1,4 @@
+using Blazored.SessionStorage;
 using LeaveApp_UI.Data;
 using LeaveApp_UI.Services.Leave;
 using LeaveApp_UI.Services.User;
@@ -13,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-
 namespace LeaveApp_UI
 {
     public class Startup
@@ -36,6 +36,7 @@ namespace LeaveApp_UI
             services.AddScoped<ILeaveService, LeaveService>();
             services.AddScoped<IUserService, UserService>();
             services.AddHttpClient();
+            services.AddBlazoredSessionStorage();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
