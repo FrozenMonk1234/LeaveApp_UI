@@ -12,13 +12,12 @@ namespace LeaveApp_UI.Data
     {
         #region Leave
         public static string CreateLeave = $"{ApiBase.BaseUrl}Leave/CreateLeave";
-        public static string GetAllLeaveRecordsByUserId = $"{ApiBase.BaseUrl}Leave/GetAllLeaveRecordsByUserId";
-        public static string GetLeaveById = $"{ApiBase.BaseUrl}Leave/GetLeaveById";
+        public static string GetAllLeaveByUserId = $"{ApiBase.BaseUrl}Leave/GetAllLeaveByUserId";
+        public static string GetAllTypeOfLeave = $"{ApiBase.BaseUrl}Leave/GetAllTypeOfLeave";
         #endregion
 
         #region User
-        public static string GetUser = $"{ApiBase.BaseUrl}User/GetUser";
-        public static string GetAllUser = $"{ApiBase.BaseUrl}User/GetAllUser";
+        public static string GetAllUsers = $"{ApiBase.BaseUrl}User/GetAllUsers";
         public static string UpdateUser = $"{ApiBase.BaseUrl}User/UpdateUser";
         public static string CreateUser = $"{ApiBase.BaseUrl}User/CreateUser";
         #endregion

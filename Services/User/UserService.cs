@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LeaveApp_UI.Services.User
@@ -15,58 +16,15 @@ namespace LeaveApp_UI.Services.User
         {
             _httpClient = httpClient;
         }
-        public async Task<string> CreateUser(Models.User model)
+        public async Task<Models.User> CreateUser(Models.User model)
         {
             var url = Enpoints.CreateUser;
-            bool result = false;
-            HttpClient client = _httpClient.CreateClient();
-            HttpResponseMessage responseMessage = await client.GetAsync(url);
-
-            if (responseMessage.IsSuccessStatusCode)
-            {
-                var responseData = await responseMessage.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<bool>(responseData);
-            }
-
-            if (result)
-            {
-                return "Created Successfully";
-            }
-            else
-            {
-                return "Failed to create. Contact your administrator";
-            }
-        }
-
-        public async Task<List<Models.User>> GetAllUsers()
-        {
-            var url = Enpoints.GetAllUser;
-            List<Models.User> result = new List<Models.User>();
-            HttpClient client = _httpClient.CreateClient();
-            HttpResponseMessage responseMessage = await client.GetAsync(url);
-
-            if (responseMessage.IsSuccessStatusCode)
-            {
-                var responseData = await responseMessage.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<List<Models.User>>(responseData);
-            }
-
-            if (result.Any())
-            {
-                return result;
-            }
-            else
-            {
-                throw new NullReferenceException("Failed to get list");
-            }
-        }
-
-        public async Task<Models.User> GetUserById(int Id)
-        {
-            var url = Enpoints.GetUser;
             Models.User result = new Models.User();
             HttpClient client = _httpClient.CreateClient();
-            HttpResponseMessage responseMessage = await client.GetAsync(url);
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage responseMessage = await client.SendAsync(request);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -74,37 +32,41 @@ namespace LeaveApp_UI.Services.User
                 result = JsonConvert.DeserializeObject<Models.User>(responseData);
             }
 
-            if (result != null)
-            {
-                return result;
-            }
-            else
-            {
-                throw new NullReferenceException("Failed to get list");
-            }
+            return result;
         }
 
-        public async Task<string> UpdateUser(Models.User model)
+        public async Task<List<Models.User>> GetAllUsers()
         {
-            var url = Enpoints.UpdateUser;
-            bool result = false;
+            List<Models.User> result = new List<Models.User>();
+            var url = Enpoints.GetAllUsers;
             HttpClient client = _httpClient.CreateClient();
             HttpResponseMessage responseMessage = await client.GetAsync(url);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var reponse = await responseMessage.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<List<Models.User>>(reponse);
+            }
+            return result;
+
+        }
+
+        public async Task<Models.User> UpdateUser(Models.User model)
+        {
+            var url = Enpoints.UpdateUser;
+            Models.User result = new Models.User();
+            HttpClient client = _httpClient.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage responseMessage = await client.SendAsync(request);
 
             if (responseMessage.IsSuccessStatusCode)
             {
                 var responseData = await responseMessage.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<bool>(responseData);
+                result = JsonConvert.DeserializeObject<Models.User>(responseData);
             }
 
-            if (result)
-            {
-                return "Updated Successfully";
-            }
-            else
-            {
-                return "Failed to Update. Contact your administrator";
-            }
+            return result;
         }
     }
 }

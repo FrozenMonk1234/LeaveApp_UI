@@ -1,9 +1,11 @@
 ﻿using LeaveApp_UI.Data;
+using LeaveApp_UI.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LeaveApp_UI.Services.Leave
@@ -15,12 +17,15 @@ namespace LeaveApp_UI.Services.Leave
         {
             _httpClient = httpClient;
         }
-        public async Task<string> CreateLeave(Models.Leave model)
+        public async Task<bool> CreateLeave(Models.Leave model)
         {
-            var url = Enpoints.CreateUser;
             bool result = false;
+            var url = Enpoints.CreateLeave;
             HttpClient client = _httpClient.CreateClient();
-            HttpResponseMessage responseMessage = await client.GetAsync(url);
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage responseMessage = await client.SendAsync(request);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -28,60 +33,35 @@ namespace LeaveApp_UI.Services.Leave
                 result = JsonConvert.DeserializeObject<bool>(responseData);
             }
 
-            if (result)
-            {
-                return "Created Successfully";
-            }
-            else
-            {
-                return "Failed to create. Contact your administrator";
-            }
+            return result;
         }
 
-        public async Task<List<Models.Leave>> GetAllLeaveRecordsByUserId(int Id)
+        public async Task<List<Models.Leave>> GetAllLeaveByUserId(int Id)
         {
-            var url = Enpoints.GetAllLeaveRecordsByUserId;
             List<Models.Leave> result = new List<Models.Leave>();
+            var url = Enpoints.GetAllLeaveByUserId + $"?Id={Id}";
             HttpClient client = _httpClient.CreateClient();
             HttpResponseMessage responseMessage = await client.GetAsync(url);
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                var responseData = await responseMessage.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<List<Models.Leave>>(responseData);
+                var reponse = await responseMessage.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<List<Models.Leave>>(reponse);
             }
-
-            if (result.Any())
-            {
-                return result;
-            }
-            else
-            {
-                throw new NullReferenceException("Failed to get list");
-            }
+            return result;
         }
 
-        public async Task<Models.Leave> GetLeaveById(int Id)
+        public async Task<List<TypeOfLeave>> GetAllTypeOfLeave()
         {
-            var url = Enpoints.GetAllLeaveRecordsByUserId;
-            Models.Leave result = new Models.Leave();
+            List<TypeOfLeave> result = new List<TypeOfLeave>();
+            var url = Enpoints.GetAllTypeOfLeave;
             HttpClient client = _httpClient.CreateClient();
             HttpResponseMessage responseMessage = await client.GetAsync(url);
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                var responseData = await responseMessage.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<Models.Leave>(responseData);
+                var reponse = await responseMessage.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<List<TypeOfLeave>>(reponse);
             }
-
-            if (result != null)
-            {
-                return result;
-            }
-            else
-            {
-                throw new NullReferenceException("Failed to get model");
-            }
+            return result;
         }
     }
 }

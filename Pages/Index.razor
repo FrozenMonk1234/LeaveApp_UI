@@ -2,62 +2,127 @@
 
 @inject IUserService _userService
 @inject ILeaveService _leaveService
+@inject NavigationManager NavManager
 <h1>Take Leave</h1>
-<div class="form-group row">
-    <div cclass="col-sm-3">
-        <label>First Name</label>
-    </div>
-    <div class="col-sm-3">
-        <input type="text" @bind="userDetail.FirstName" />
-    </div>
-</div>
 
-<div class="form-group row">
-    <div cclass="col-sm-3">
-        <label>Last Name</label>
-    </div>
-    <div class="col-sm-3">
-        <input type="text" @bind="userDetail.LastName" />
-    </div>
-</div>
-
-<div class="form-group row">
-    <div class="col-sm-3">
-        <label>Leave type</label>
-    </div>
-    <div class="col-sm-3">
-        <input @bind="leaveDetail.TypeOfLeave" list="leaveType" type="text" autocomplete="on"/>
-        <datalist id="leaveType">
-            @foreach (var item in typeOfLeaveList)
-            {
-                <option value="@item.Description" >@item.Description</option>
-            }
-        </datalist>
-    </div>
-</div>
+@if (error)
+{
+    <ErrorMessage Message="@ErrorMessage"></ErrorMessage>
+}
 
 
+<div style="height: 3rem"></div>
 
-<div class="form-group row">
-    <div class="col-sm-1">
-        <label>Date:</label>
-    </div>
-
-    <div class="row">
-        from: &nbsp; <input type="date" @bind="leaveDetail.FromDate" /> &nbsp; to: &nbsp; <input type="date" @bind="leaveDetail.ToDate" />
-    </div>
-</div>
+<EditForm Model="@leaveDetail" OnInvalidSubmit="@SubmitLeave">
 
 
-<div class="col-sm-3">
     <div class="form-group row">
-        <label>Reason</label> &nbsp;
-        <input type="text" @bind="leaveDetail.Reason" style="width:300px; height: 100px; align-content:flex-start" />
-    </div>
-</div>
+        <div class="col-sm-2">
+            <label>User:</label>
+        </div>
+        <div class="col-sm-3">
+            @*<input @bind="leaveDetail.UserId" list="userlist" type="text" style="width:300px;" name="User" required />*@
+            <select @onchange="onUserChange" style="width:300px;" class="form-control" id="userlist">
+                <option>Select...</option>
+                @foreach (var item in userDetailList)
+                {
+                    <option value="@item.Id">@item.FirstName @item.LastName</option>
+                }
+            </select>
+        </div>
 
+    </div>
+    <div style="height: 3rem"></div>
+
+    <div class="form-group row">
+        <div class="col-sm-3">
+            <label>Total leave days taken: @userDetail.LeaveDays </label>
+        </div>
+
+    </div>
+
+
+
+    <div class="form-group row">
+
+        <div class="col-sm-3">
+            <label>Total leave days left: @userDetail.LeaveLeft</label>
+        </div>
+    </div>
+
+    <div style="height: 3rem"></div>
+
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label>Leave type</label>
+        </div>
+        <div class="col-sm-3">
+            @*<input class="form-control" @bind="leaveDetail.TypeOfLeave" list="leaveType" type="text" style="width:300px;" name="LeaveType" required />*@
+            <select class="form-control" @onchange="onLeaveChange" style="width:300px;" id="leaveType" required>
+                <option>Select...</option>
+                @foreach (var item in typeOfLeaveList)
+                {
+                    <option value="@item.Description">@item.Description</option>
+                }
+            </select>
+        </div>
+
+    </div>
+
+
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label>First Name</label>
+        </div>
+        <div class="col-sm-3">
+            <input class="form-control" type="text" @bind="userDetail.FirstName" style="width:300px;" name="FirstName" required />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label>Last Name</label>
+        </div>
+        <div class="col-sm-3">
+            <input class="form-control" type="text" @bind="userDetail.LastName" style="width:300px;" name="LastName" required />
+        </div>
+    </div>
+
+
+
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label>Date:</label>
+        </div>
+        <div class="col-sm-3">
+            from: &nbsp; <input type="date" @bind="leaveDetail.FromDate" name="LeaveStartDate" required /> &nbsp; to: &nbsp; <input type="date" @bind="leaveDetail.ToDate" name="LeaveEndDate" required />
+        </div>
+    </div>
+
+
+
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label>Reason</label>
+        </div>
+        <div class="col-sm-3">
+            <input class="form-control" type="text" @bind="leaveDetail.Reason" style="width:300px; height: 100px; align-content:flex-start"  />
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-2">
+            <label></label>
+        </div>
+        <div class="col-sm-3">
+            <input type="submit" class="btn btn-primary form-control" style="width:300px;" @onclick="SubmitLeave" />
+        </div>
+    </div>
+
+</EditForm>
 @code{
 
+    string ErrorMessage = string.Empty;
+    bool error = false;
     List<Leave> leaveDetailList = new List<Leave>();
     Leave leaveDetail = new Leave();
     User userDetail = new User();
@@ -66,17 +131,60 @@
 
     protected override async Task OnInitializedAsync()
     {
-        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Annual", value = 1});
-        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Business", value = 1});
-        typeOfLeaveList.Add(new TypeOfLeave() { Description = "Sick", value = 1});
+        userDetail.IsActive = true;
 
-        //typeOfLeaveList = _leaveService.
+        userDetailList = await _userService.GetAllUsers();
+        if (!userDetailList.Any())
+        {
+            userDetail.LeaveDays = 0;
+            userDetail.LeaveLeft = 10;
+        }
+
+        typeOfLeaveList = await _leaveService.GetAllTypeOfLeave();
         this.StateHasChanged();
     }
 
     public async Task SubmitLeave()
     {
-        var resultSaveUser = await _userService.CreateUser(userDetail);
-        var resultSaveLeave = await _leaveService.CreateLeave(leaveDetail);
+        try
+        {
+            if (leaveDetail.FromDate > leaveDetail.ToDate)
+            {
+                error = true;
+                ErrorMessage = "Leave from date cannot be greater than to date";
+                this.StateHasChanged();
+            }
+            else
+            {
+                var resultSaveUser = await _userService.CreateUser(userDetail);
+                leaveDetail.UserId = resultSaveUser.Id;
+                var resultSaveLeave = await _leaveService.CreateLeave(leaveDetail);
+
+                NavManager.NavigateTo("Dashboard/" + resultSaveUser.Id);
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            error = true;
+            ErrorMessage = e.Message;
+        }
+
+    }
+
+    void onUserChange(ChangeEventArgs e)
+    {
+        int selectedId = 0;
+        var selectedStatus = e.Value.ToString();
+        if (Int32.TryParse(selectedStatus, out selectedId))
+        {
+            leaveDetail.UserId = selectedId;
+        }
+    }
+
+    void onLeaveChange(ChangeEventArgs e)
+    {
+        leaveDetail.TypeOfLeave = e.Value.ToString();
     }
 }

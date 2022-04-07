@@ -1,0 +1,49 @@
+﻿@page "/dashboard/{navUserId}"
+
+@inject IUserService _userService
+@inject ILeaveService _leaveService
+@inject NavigationManager NavManager
+
+<h3>dashboard</h3>
+
+<div style="height: 10rem"></div>
+
+<div class="col-sm-12">
+    <table class="tabe table-light">
+        <thead>
+            <tr>Date Created</tr>
+            <tr>From Date</tr>
+            <tr>To Date</tr>
+            <tr>Leave Left</tr>
+            <tr>Type of leave</tr>
+            <tr>Reason</tr>
+        </thead>
+        <tbody>
+            @foreach(var item in LeaveList)
+            {
+                <tr>@item.DateCreated</tr>
+                <tr>@item.FromDate</tr>
+                <tr>@item.ToDate</tr>
+                <tr>@item.LeaveLeft</tr>
+                <tr>@item.TypeOfLeave</tr>
+                <tr>@item.Reason</tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public string navUserId { get; set; }
+
+    int userID;
+    List<Leave> LeaveList = new List<Leave>();
+    protected override async Task OnInitializedAsync()
+    {
+        Int32.TryParse(navUserId, out userID);
+
+        LeaveList = await _leaveService.GetAllLeaveByUserId(userID);
+
+        this.StateHasChanged();
+    }
+}

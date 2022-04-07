@@ -7,9 +7,8 @@ namespace LeaveApp_UI.Services.User
 {
     public interface IUserService
     {
-        Task<Models.User> GetUserById(int Id);
         Task<List<Models.User>> GetAllUsers();
-        Task<string> UpdateUser(Models.User model);
-        Task<string> CreateUser(Models.User model);
+        Task<Models.User> UpdateUser(Models.User model);
+        Task<Models.User> CreateUser(Models.User model);
     }
 }
